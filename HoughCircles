@@ -1,0 +1,50 @@
+#include <opencv2/opencv.hpp>
+#include <opencv2/highgui.hpp>
+#include <iostream> 
+#include <vector>
+#define PI 3.1415926
+using namespace std;
+
+void onMouse(int event, int x, int y, int flags, void* param)
+{
+	cv::Mat *im = reinterpret_cast<cv::Mat*>(param);
+	switch (event)
+	{
+	case cv::EVENT_LBUTTONDOWN:
+		cv::Vec3b intensity = im->at<cv::Vec3b>(y, x);
+		uchar blue = intensity[0];
+		uchar green = intensity[1];
+		uchar red = intensity[2];
+		cout << "The value of"<< x<<"  "<<y<<
+			"is:  " << (int)red << "  " << (int)green << "  " << (int)blue << endl;
+	}
+}
+
+int main()
+{
+	cv::Mat img, img1;
+
+	cv::namedWindow("Result");
+	
+
+	img = cv::imread("D:\\1.jpg");
+	cvtColor(img, img1, CV_BGR2GRAY);
+	cv::GaussianBlur(img1, img1, cv::Size(5, 5), 1.5);
+	cv::imshow("naka", img1);
+
+	std::vector<cv::Vec3f> circles;
+	cv::HoughCircles(img1, circles, cv::HOUGH_GRADIENT, 2, 50, 300, 50, 20, 100);
+	if (!circles.empty())
+	{
+		std::vector<cv::Vec3f>::const_iterator it = circles.begin();
+		for (; it != circles.end(); it++)
+		{
+			cv::circle(img, cv::Point2f((*it)[0], (*it)[1]), (*it)[2], cv::Scalar(255), 2);
+		}
+		cv::setMouseCallback("Result", onMouse, reinterpret_cast<void*>(&img));
+		cv::imshow("Result", img);
+	}
+	
+	cv::waitKey(0);
+	return 0;
+}

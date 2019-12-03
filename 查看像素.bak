@@ -1,0 +1,30 @@
+#include <opencv2/opencv.hpp>
+#include <opencv2/highgui.hpp>
+#include <iostream> 
+using namespace std;
+
+void onMouse(int event, int x, int y, int flags, void* param);
+
+void onMouse(int event, int x, int y, int flags, void* param)
+{
+	cv::Mat *im = reinterpret_cast<cv::Mat*>(param);
+	switch (event)
+	{
+	case cv::EVENT_LBUTTONDOWN:
+		cv::Vec3b intensity = im->at<cv::Vec3b>(y, x);
+		uchar blue = intensity[0];
+		uchar green = intensity[1];
+		uchar red = intensity[2];
+		cout << "value is:  " << (int)red <<"  "<< (int)green <<"  "<< (int)blue << endl;
+	}
+}
+
+int main()
+{
+	cv::Mat img1 = cv::imread("D:\\1.jpg"), img2;
+	cv::namedWindow("Original Image");
+	cv::setMouseCallback("Original Image", onMouse, reinterpret_cast<void*>(&img1));
+	cv::imshow("Original Image", img1);
+	cv::waitKey(0);
+	return 0;
+}

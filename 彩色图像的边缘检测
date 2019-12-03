@@ -1,0 +1,40 @@
+#include <opencv2/opencv.hpp>
+#include <opencv2/highgui.hpp>
+#include <iostream> 
+#include <vector>
+
+using namespace std;
+using namespace cv;
+
+int main()
+{
+	cv::Mat img, gray;
+	cv::namedWindow("Resource", cv::WINDOW_AUTOSIZE);	
+	img = cv::imread("D:\\bai.jpg");
+	cv::imshow("Resource", img);
+
+	cv::Mat sobelx, sobely, sobel, canny;
+	cv::Sobel(img, sobelx, CV_32F, 1, 0, 3, 1, 128);
+	cv::Sobel(img, sobely, CV_32F, 0, 1, 3, 1, 128);
+	sobel = abs(sobelx) + abs(sobely);
+
+	cv::Mat channels[3], temp[3], sobelImage, contour;
+	cv::split(sobel, channels);
+	for (int i = 0; i < 3; i++)
+	{
+		double sobmin, sobmax;
+		cv::minMaxLoc(channels[i], &sobmin, &sobmax);
+		channels[i].convertTo(temp[i], CV_8U, -1, 255);
+	}
+	cv::merge(temp, 3, sobelImage);
+	cv::cvtColor(sobelImage, contour, CV_BGR2GRAY);
+	cv::imshow("Sobel", contour);
+	cv::threshold(contour, contour, 50, 255, cv::THRESH_BINARY);
+	cv::imshow("contour", contour);
+
+	gray = cv::imread("D:\\bai.jpg", CV_LOAD_IMAGE_GRAYSCALE);
+	cv::Canny(gray, canny, 10, 255);
+	cv::imshow("canny", canny);
+	cv::waitKey(0);
+	return 0;
+}

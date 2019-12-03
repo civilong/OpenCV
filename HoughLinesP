@@ -1,0 +1,51 @@
+#include <opencv2/opencv.hpp>
+#include <opencv2/highgui.hpp>
+#include <iostream> 
+#include "ColorHistogram.h"
+#include "ContentFinder.h"
+#include "ImageComparator.h"
+#include <vector>
+#include "LineFinder.h"
+#define PI 3.1415926
+using namespace std;
+
+void onMouse(int event, int x, int y, int flags, void* param);
+
+void onMouse(int event, int x, int y, int flags, void* param)
+{
+	cv::Mat *im = reinterpret_cast<cv::Mat*>(param);
+	switch (event)
+	{
+	case cv::EVENT_LBUTTONDOWN:
+		cv::Vec3b intensity = im->at<cv::Vec3b>(y, x);
+		uchar blue = intensity[0];
+		uchar green = intensity[1];
+		uchar red = intensity[2];
+		cout << "The value of"<< x<<"  "<<y<<
+			"is:  " << (int)red << "  " << (int)green << "  " << (int)blue << endl;
+	}
+}
+
+int main()
+{
+	cv::Mat img1;
+	LineFinder finder;
+
+	cv::namedWindow("Result");
+	cv::setMouseCallback("Result", onMouse, reinterpret_cast<void*>(&img1));
+
+	img1 = cv::imread("D:\\1.jpg");
+	cv::Mat contours;
+	cv::Canny(img1, contours, 125, 350);
+	cv::imshow("Contours", contours);
+
+	finder.setMinLength(100);
+	finder.setMaxGap(20);
+	finder.setMinVote(60);
+	std::vector<cv::Vec4i> lines = finder.findLines(contours);
+	finder.drawDetectedLines(img1, cv::Scalar(255, 0, 0), 2);
+	cv::imshow("Result", img1);
+
+	cv::waitKey(0);
+	return 0;
+}

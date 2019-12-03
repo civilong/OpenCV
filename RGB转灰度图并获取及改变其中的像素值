@@ -1,0 +1,34 @@
+#include <opencv2/opencv.hpp>
+#include <iostream> 
+using namespace std;
+
+int main()
+{
+	cv::Mat img_rgb, img_gry, img_cny, img_pyr1, img_pyr2;
+	cv::namedWindow("Example Gray", cv::WINDOW_AUTOSIZE);
+	cv::namedWindow("Example pyr1", cv::WINDOW_AUTOSIZE);
+	cv::namedWindow("Example pyr2", cv::WINDOW_AUTOSIZE);
+	cv::namedWindow("Example Canny", cv::WINDOW_AUTOSIZE);
+
+	img_rgb = cv::imread("D:\\1.jpg");
+	cv::cvtColor(img_rgb, img_gry, cv::COLOR_BGR2GRAY);
+	cv::imshow("Example Gray", img_gry);
+	cv::pyrDown(img_gry, img_pyr1);
+	cv::imshow("Example pyr1", img_pyr1);
+	cv::pyrDown(img_pyr1, img_pyr2);
+	cv::imshow("Example pyr2", img_pyr2);
+	cv::Canny(img_pyr2, img_cny, 10, 100, 3, true);
+	cv::imshow("Example Canny", img_cny);
+
+	int x = 16, y = 32;
+	cv::Vec3b intensity = img_rgb.at<cv::Vec3b>(y, x);
+	uchar blue = intensity[0];
+	uchar green = intensity[1];
+	uchar red = intensity[2];
+
+	cout << x << "," << y << "," << (unsigned int)red << "  " 
+		<< (unsigned int)green << "  " << (unsigned int)blue << endl;
+	cout << (unsigned int)img_gry.at<uchar>(y, x) << endl;
+	cv::waitKey(0);
+	return 0;
+}

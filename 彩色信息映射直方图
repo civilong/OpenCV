@@ -1,0 +1,48 @@
+#include <opencv2/opencv.hpp>
+#include <opencv2/highgui.hpp>
+#include <iostream> 
+#include "ColorHistogram.h"
+#include "ContentFinder.h"
+using namespace std;
+
+void onMouse(int event, int x, int y, int flags, void* param);
+
+void onMouse(int event, int x, int y, int flags, void* param)
+{
+	cv::Mat *im = reinterpret_cast<cv::Mat*>(param);
+	switch (event)
+	{
+	case cv::EVENT_LBUTTONDOWN:
+		cv::Vec3b intensity = im->at<cv::Vec3b>(y, x);
+		uchar blue = intensity[0];
+		uchar green = intensity[1];
+		uchar red = intensity[2];
+		cout << "The value of"<< x<<"  "<<y<<
+			"is:  " << (int)red << "  " << (int)green << "  " << (int)blue << endl;
+	}
+}
+
+int main()
+{
+	cv::Mat img1, img2, imageROI;
+	ColorHistogram hc;
+	ContentFinder  finder;
+
+	img1 = cv::imread("D:\\3.jpg");
+	img2 = cv::imread("D:\\2.jpg");
+	cv::namedWindow("原始图像");
+	cv::setMouseCallback("原始图像", onMouse, reinterpret_cast<void*>(&img1));
+	cv::imshow("原始图像", img1);
+
+	imageROI = img1(cv::Rect(167, 188, 160, 210));
+	hc.setSize(8);
+	cv::Mat shist = hc.getHistogram(imageROI);
+
+	finder.setHistogram(shist);
+	finder.setThreshold(0.05f);
+	cv::Mat result = finder.find(img2);
+	cv::imshow("结果", result);
+
+	cv::waitKey(0);
+	return 0;
+}

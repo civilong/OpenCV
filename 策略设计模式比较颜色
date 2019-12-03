@@ -1,0 +1,89 @@
+#include <opencv2/opencv.hpp>
+#include <random>
+#include <iostream> 
+using namespace std;
+
+class ColorDetector
+{
+public:
+	ColorDetector() :maxDist(100), target(0, 0, 0) {};
+	ColorDetector(uchar blue, uchar green, uchar red, int mxDist);
+	void setTargetColor(uchar blue, uchar green, uchar red);
+	void setTargetColor(cv::Vec3b color);
+	cv::Vec3b getTargetColor();
+	cv::Mat process(const cv::Mat&);
+	int getDistanceToTargetColor(const cv::Vec3b&);
+	int getColorDistance(const cv::Vec3b &color1, const cv::Vec3b &color2);
+
+private:
+	int maxDist;
+	cv::Vec3b target;
+	cv::Mat result;
+};
+
+
+ColorDetector::ColorDetector(uchar blue, uchar green, uchar red, int mxDist)
+{
+	maxDist = mxDist;
+	target = cv::Vec3b(blue, green, red);
+}
+
+void ColorDetector::setTargetColor(uchar blue, uchar green, uchar red)
+{
+	target = cv::Vec3b(blue, green, blue);
+}
+
+void ColorDetector::setTargetColor(cv::Vec3b color)
+{
+	target = color;
+}
+
+cv::Vec3b ColorDetector::getTargetColor()
+{
+	return target;
+}
+
+cv::Mat ColorDetector::process(const cv::Mat &image)
+{
+	result.create(image.size(), CV_8U);
+	cv::Mat_<cv::Vec3b>::const_iterator it = image.begin<cv::Vec3b>();
+	cv::Mat_<cv::Vec3b>::const_iterator itend = image.end<cv::Vec3b>();
+	cv::Mat_<uchar>::iterator itout = result.begin<uchar>();
+
+	for (; it != itend; it++, itout++)
+	{
+		if (getDistanceToTargetColor(*it) <= maxDist)
+			*itout = 255;
+		else
+			*itout = 0;
+	}
+	return result;
+}
+
+int ColorDetector::getDistanceToTargetColor(const cv::Vec3b& color)
+{
+	return getColorDistance(color, target);
+}
+
+int ColorDetector::getColorDistance(const cv::Vec3b &color1, const cv::Vec3b &color2)
+{
+	return abs(color1[0] - color2[0]) +
+		abs(color1[1] - color2[1]) +
+		abs(color1[2] - color2[2]);
+}
+
+int main()
+{
+	ColorDetector cdetect(230, 190, 130, 100);
+	cv::Mat img1 = cv::imread("D:\\1.jpg");
+	if (img1.empty())
+		return 0;
+	cv::imshow("Test", img1);
+	cv::namedWindow("Test1");
+	cv::Mat result = cdetect.process(img1);
+	cv::imshow("Test1", result);
+	cout << (int)(cdetect.getTargetColor())[0]<< (int)(cdetect.getTargetColor())[1] << endl;
+
+	cv::waitKey(0);
+	return 0;
+}

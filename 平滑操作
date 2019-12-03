@@ -1,0 +1,25 @@
+#include <opencv2/opencv.hpp>
+#include <iostream> 
+using namespace std;
+
+int main()
+{
+	cv::Mat img = cv::imread("D:\\1.jpg", -1);
+	if (img.empty())
+		return -1;
+	cv::namedWindow("Example1", cv::WINDOW_AUTOSIZE);
+	cv::namedWindow("Result1", cv::WINDOW_AUTOSIZE);
+	cv::namedWindow("Result2", cv::WINDOW_AUTOSIZE);
+	cv::imshow("Example1", img);
+	cv::Mat out;
+	cv::GaussianBlur(img, out, cv::Size(5, 5), 3, 3);
+	cv::Mat out1;
+	cv::GaussianBlur(img, out1, cv::Size(9, 9), 3, 3);
+	cv::imshow("Result1", out);
+	cv::imshow("Result2", out1);
+	cv::waitKey(0);
+	cv::destroyWindow("Example1");
+	cv::destroyWindow("Result1");
+	cv::destroyWindow("Result2");
+	return 0;
+}

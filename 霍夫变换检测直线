@@ -1,0 +1,64 @@
+#include <opencv2/opencv.hpp>
+#include <opencv2/highgui.hpp>
+#include <iostream> 
+#include "ColorHistogram.h"
+#include "ContentFinder.h"
+#include "ImageComparator.h"
+#include <vector>
+#define PI 3.1415926
+using namespace std;
+
+void onMouse(int event, int x, int y, int flags, void* param);
+
+void onMouse(int event, int x, int y, int flags, void* param)
+{
+	cv::Mat *im = reinterpret_cast<cv::Mat*>(param);
+	switch (event)
+	{
+	case cv::EVENT_LBUTTONDOWN:
+		cv::Vec3b intensity = im->at<cv::Vec3b>(y, x);
+		uchar blue = intensity[0];
+		uchar green = intensity[1];
+		uchar red = intensity[2];
+		cout << "The value of"<< x<<"  "<<y<<
+			"is:  " << (int)red << "  " << (int)green << "  " << (int)blue << endl;
+	}
+}
+
+int main()
+{
+	cv::Mat img1, img2, img3;
+	vector<cv::Vec2f> lines;
+
+	cv::namedWindow("Result");
+	cv::setMouseCallback("Result", onMouse, reinterpret_cast<void*>(&img1));
+	img1 = cv::imread("D:\\1.jpg");
+	cv::Mat contours;
+	cv::Canny(img1, contours, 125, 350);
+	cv::imshow("Contours", contours);
+	cv::HoughLines(contours, lines, 1, PI / 180, 80);
+
+	std::vector<cv::Vec2f>::const_iterator it = lines.begin();
+	while (it != lines.end())
+	{
+		float rho = (*it)[0];
+		float theta = (*it)[1];
+		if (theta < PI / 4 || theta>3 * PI / 4)
+		{
+			cv::Point pt1(rho / cos(theta), 0);
+			cv::Point pt2(rho / cos(theta) - contours.rows*sin(theta) / cos(theta), contours.rows);
+			cv::line(img1, pt1, pt2, cv::Scalar(255), 1);
+		}
+		else
+		{
+			cv::Point pt1(0, rho / sin(theta));
+			cv::Point pt2(contours.cols, rho / sin(theta) - contours.cols*cos(theta) / sin(theta));
+			cv::line(img1, pt1, pt2, cv::Scalar(255), 1);
+		}
+		it++;
+	}
+	cv::imshow("Result", img1);
+
+	cv::waitKey(0);
+	return 0;
+}

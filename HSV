@@ -1,0 +1,24 @@
+#include <opencv2/opencv.hpp>
+#include <random>
+#include <iostream> 
+#include<vector>
+using namespace std;
+
+int main()
+{
+	cv::Mat img1, img_bsv, cha1, cha2, cha3;
+	vector<cv::Mat> vec;
+	img1 = cv::imread("D:\\1.jpg");
+	cv::cvtColor(img1, img_bsv, CV_BGR2HSV);
+	split(img_bsv, vec);
+	cha1 = vec[0];
+	cha2 = vec[1];
+	cha3 = vec[2];
+	cv::imshow("Ori", img1);
+	cv::imshow("Hue", cha1);
+	cv::imshow("Saturation", cha2);
+	cv::imshow("Value", cha3);
+
+	cv::waitKey(0);
+	return 0;
+}

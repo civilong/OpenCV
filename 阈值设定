@@ -1,0 +1,44 @@
+#include <opencv2/opencv.hpp>
+#include <iostream> 
+using namespace std;
+
+void sum_rgb(const cv::Mat& src, cv::Mat& dst)
+{
+	vector<cv::Mat> planes;
+	cv::split(src, planes);
+
+	cv::Mat b = planes[0], g = planes[1], r = planes[2], s;
+	cv::addWeighted(r, 1. / 3., g, 1. / 3., 0.0, s);
+	cv::addWeighted(s, 1., b, 1. / 3., 0.0, s);
+	cv::threshold(s, dst, 100, 100, cv::THRESH_TRUNC);
+}
+
+void sum_rgb2(const cv::Mat& src, cv::Mat& dst)
+{
+	vector<cv::Mat> planes;
+	cv::split(src, planes);
+
+	cv::Mat b = planes[0], g = planes[1], r = planes[2], s;
+	cv::addWeighted(r, 1. / 3., g, 1. / 3., 0.0, s);
+	cv::addWeighted(s, 1., b, 1. / 3., 0.0, s);
+	cv::threshold(s, dst, 255, 255, cv::THRESH_TRUNC);
+}
+
+void help()
+{
+	cout << "Call image" << endl;
+	cout << "Show use of threshold" << endl;
+}
+
+int main()
+{
+	help();
+	cv::Mat img1 = cv::imread("D:\\1.jpg"), img2, img3;
+	sum_rgb(img1, img2);
+	sum_rgb2(img1, img3);
+	cv::imshow("Ô­Í¼Ïñ", img1);
+	cv::imshow("D:\\2.jpg", img2);
+	cv::imshow("D:\\3.jpg", img3);
+	cv::waitKey(0);
+	return 0;
+}

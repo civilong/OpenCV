@@ -1,0 +1,40 @@
+#include <opencv2/opencv.hpp>
+#include <random>
+#include <iostream> 
+using namespace std;
+
+void salt(cv::Mat image, int n)
+{
+	default_random_engine generator;
+	uniform_int_distribution<int> randomRow(0, image.rows - 1);
+	uniform_int_distribution<int> randomCol(0, image.cols - 1);
+	int i, j;
+	for (int k = 0; k < n; k++)
+	{
+		i = randomRow(generator);
+		j = randomCol(generator);
+		if (CV_8UC1 == image.type())
+		{
+			image.at<uchar>(j, i) = 255;
+		}
+		else if(CV_8UC3 == image.type())
+		{
+			image.at<cv::Vec3b>(j, i)[0] = 255;
+			image.at<cv::Vec3b>(j, i)[1] = 255;
+			image.at<cv::Vec3b>(j, i)[2] = 255;
+		}
+	}
+}
+
+int main()
+{
+	cv::Mat img1 = cv::imread("D:\\1.jpg");
+	cv::namedWindow("Original");
+	cv::imshow("Original", img1);
+	salt(img1, 3000);
+	cv::namedWindow("Result");
+	cv::imshow("Result", img1);
+	cv::imwrite("D:\\salt.jpg", img1);
+	cv::waitKey(0);
+	return 0;
+}

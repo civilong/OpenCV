@@ -1,0 +1,30 @@
+#include <opencv2/opencv.hpp>
+#include <random>
+#include <iostream> 
+using namespace std;
+
+void colorReduce(cv::Mat img, int div = 64)
+{
+	int row = img.rows, col = img.cols*img.channels();
+	for (int i = 0; i < row; i++)
+	{
+		uchar* ptr = img.ptr<uchar>(i);
+		for (int j = 0; j < col; j++)
+		{
+			ptr[j] = ptr[j] / div*div + div / 2;
+		}
+	}
+}
+
+int main()
+{
+	cv::Mat img1 = cv::imread("D:\\1.jpg");
+	cv::namedWindow("Original");
+	cv::imshow("Original", img1);
+	colorReduce(img1, 64);
+	cv::namedWindow("Result");
+	cv::imshow("Result", img1);
+	cv::imwrite("D:\\colorReduce.jpg", img1);
+	cv::waitKey(0);
+	return 0;
+}

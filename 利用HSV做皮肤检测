@@ -1,0 +1,45 @@
+#include <opencv2/opencv.hpp>
+#include <random>
+#include <iostream> 
+#include<vector>
+using namespace std;
+
+void detectHScolor(const cv::Mat& image,
+	double minHue, double maxHue,
+	double minSat, double maxSat,
+	cv::Mat &mask)
+{
+	cv::Mat image_HSV;
+	cv::cvtColor(image, image_HSV, CV_BGR2HSV);
+	vector<cv::Mat> channels;
+	cv::split(image_HSV, channels);
+
+	cv::Mat mask1;
+	cv::threshold(channels[0], mask1, maxHue, 255, cv::THRESH_BINARY_INV);
+	cv::Mat mask2;
+	cv::threshold(channels[0], mask2, minHue, 255, cv::THRESH_BINARY);
+
+	//色调的表示为一个圆，分小于180和大于180两种情况
+	cv::Mat hueMask;
+	if (minHue < maxHue)
+		hueMask = mask1 & mask2;
+	else
+		hueMask = mask1 | mask2;
+
+	cv::Mat satMask;
+	cv::inRange(channels[1], minSat, maxSat, satMask);
+	mask = hueMask & satMask;
+}
+
+int main()
+{
+	cv::Mat mask;
+	cv::Mat img = cv::imread("D:\\1.jpg");
+	detectHScolor(img, 160, 10, 25, 166, mask);
+	cv::Mat detected(img.size(), CV_8UC3, cv::Scalar(0, 0, 0));
+	img.copyTo(detected, mask);
+	cv::imshow("Detect", detected);
+
+	cv::waitKey(0);
+	return 0;
+}
